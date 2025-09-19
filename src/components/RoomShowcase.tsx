@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import cabinImage from "@/assets/cabin-lakeside.jpg";
 import villaImage from "@/assets/villa-hillside.jpg";
+import luxuryCabinImage from "@/assets/luxury-cabin-suite.jpg";
 
 const RoomShowcase = () => {
   const accommodations = [
@@ -26,7 +27,7 @@ const RoomShowcase = () => {
       description: "Premium lakefront accommodation with enhanced amenities, perfect for small groups seeking upscale rustic elegance.",
       price: "$350",
       capacity: "3 People", 
-      image: cabinImage,
+      image: luxuryCabinImage,
       features: ["Panoramic Lake View", "Hot Tub", "Premium Furnishing", "Room Service"]
     }
   ];
