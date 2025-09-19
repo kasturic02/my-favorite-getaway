@@ -1,26 +1,33 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import roomImage from "@/assets/room-ocean-view.jpg";
+import cabinImage from "@/assets/cabin-lakeside.jpg";
+import villaImage from "@/assets/villa-hillside.jpg";
 
 const RoomShowcase = () => {
-  const rooms = [
+  const accommodations = [
     {
-      title: "Ocean View Suite",
-      description: "Wake up to breathtaking ocean views in our spacious suite featuring a private balcony and luxury amenities.",
-      price: "$399",
-      features: ["Ocean View", "Private Balcony", "King Bed", "Luxury Bath"]
+      title: "Lakeside Cabin",
+      description: "Cozy wooden cabin with stunning lake views, perfect for intimate getaways with rustic charm and modern amenities.",
+      price: "$250",
+      capacity: "2 People",
+      image: cabinImage,
+      features: ["Lake View", "Fireplace", "Private Deck", "Kitchenette"]
     },
     {
-      title: "Beachfront Villa",
-      description: "Direct beach access from your private villa with exclusive amenities and personalized service.",
-      price: "$799",
-      features: ["Beach Access", "Private Pool", "Butler Service", "Outdoor Shower"]
+      title: "Family Villa",
+      description: "Spacious hillside villa overlooking rolling meadows, ideal for families seeking comfort and nature immersion.",
+      price: "$450", 
+      capacity: "4 People",
+      image: villaImage,
+      features: ["Hill View", "Full Kitchen", "Multiple Bedrooms", "Garden Access"]
     },
     {
-      title: "Garden Paradise Room",
-      description: "Surrounded by tropical gardens, enjoy tranquility and nature from your elegant retreat.",
-      price: "$299",
-      features: ["Garden View", "Tropical Setting", "Queen Bed", "Natural Light"]
+      title: "Luxury Cabin Suite",
+      description: "Premium lakefront accommodation with enhanced amenities, perfect for small groups seeking upscale rustic elegance.",
+      price: "$350",
+      capacity: "3 People", 
+      image: cabinImage,
+      features: ["Panoramic Lake View", "Hot Tub", "Premium Furnishing", "Room Service"]
     }
   ];
 
@@ -32,22 +39,27 @@ const RoomShowcase = () => {
             Luxury Accommodations
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Each room and suite is thoughtfully designed to provide the perfect blend of comfort and elegance
+            Choose from our collection of rustic cabins and hillside villas, each designed for different group sizes and preferences
           </p>
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {rooms.map((room, index) => (
+          {accommodations.map((room, index) => (
             <Card key={index} className="resort-card overflow-hidden group hover:scale-105 transition-all duration-500">
               <div className="relative h-64 overflow-hidden">
                 <img 
-                  src={roomImage} 
+                  src={room.image} 
                   alt={room.title}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 />
                 <div className="absolute top-4 right-4">
                   <span className="bg-primary text-primary-foreground px-4 py-2 rounded-full text-sm font-medium">
                     From {room.price}/night
+                  </span>
+                </div>
+                <div className="absolute top-4 left-4">
+                  <span className="bg-accent text-accent-foreground px-3 py-1 rounded-full text-xs font-medium">
+                    {room.capacity}
                   </span>
                 </div>
               </div>

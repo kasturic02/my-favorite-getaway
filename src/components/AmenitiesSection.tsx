@@ -1,28 +1,28 @@
 import { Card, CardContent } from "@/components/ui/card";
-import poolImage from "@/assets/pool-area.jpg";
-import spaImage from "@/assets/spa-interior.jpg";
+import natureImage from "@/assets/nature-trails.jpg";
+import farmImage from "@/assets/organic-farm.jpg";
 
 const AmenitiesSection = () => {
   const amenities = [
     {
-      title: "Infinity Pool & Beach Bar",
-      description: "Swim in our stunning infinity pool while enjoying panoramic ocean views and handcrafted cocktails.",
-      image: poolImage,
-      highlights: ["Ocean Views", "Pool Bar", "Cabanas", "Beach Access"]
+      title: "Nature Trails & Bird Watching", 
+      description: "Explore miles of scenic hiking trails through lush forests and meadows, perfect for bird watching and wildlife photography.",
+      image: natureImage,
+      highlights: ["Guided Hikes", "Bird Watching", "Photography Tours", "Wildlife Spotting"]
     },
     {
-      title: "Serenity Spa & Wellness",
-      description: "Rejuvenate your body and soul with our world-class spa treatments and wellness programs.",
-      image: spaImage,
-      highlights: ["Massage Therapy", "Yoga Classes", "Meditation", "Wellness Treatments"]
+      title: "Organic Farm & Fresh Dining",
+      description: "Experience farm-to-table dining with fresh organic produce from our on-site farm, plus hands-on farm activities.",
+      image: farmImage, 
+      highlights: ["Farm Tours", "Animal Petting", "Fresh Produce", "Cooking Classes"]
     }
   ];
 
   const features = [
-    { icon: "🏖️", title: "Private Beach", desc: "Exclusive access to pristine white sand beach" },
-    { icon: "🍽️", title: "Fine Dining", desc: "Multiple restaurants featuring world cuisine" },
-    { icon: "🏋️", title: "Fitness Center", desc: "State-of-the-art equipment and personal trainers" },
-    { icon: "🎾", title: "Activities", desc: "Tennis, water sports, and adventure excursions" }
+    { icon: "🚣", title: "Lake Activities", desc: "Boating, kayaking, and fishing on pristine waters" },
+    { icon: "🍺", title: "In-House Brewery", desc: "Craft beer made with local ingredients and spring water" },
+    { icon: "🏓", title: "Indoor Games", desc: "Bowling alley, ping pong, and cozy game rooms" },
+    { icon: "🏸", title: "Outdoor Sports", desc: "Badminton courts and nature-based activities" }
   ];
 
   return (
@@ -30,10 +30,10 @@ const AmenitiesSection = () => {
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-6 text-foreground">
-            Resort Amenities
+            Farm & Nature Amenities
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Indulge in luxury with our comprehensive range of world-class amenities and services
+            Immerse yourself in nature with our comprehensive range of outdoor adventures and farm experiences
           </p>
         </div>
 

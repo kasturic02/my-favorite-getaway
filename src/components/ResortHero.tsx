@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import heroImage from "@/assets/hero-resort.jpg";
+import heroImage from "@/assets/hero-farmside.jpg";
 
 const ResortHero = () => {
   return (
@@ -19,7 +19,7 @@ const ResortHero = () => {
           My Favorite Getaway
         </h1>
         <p className="text-xl md:text-2xl mb-8 font-light opacity-90 animate-fade-in">
-          Escape to Paradise • Luxury Redefined • Unforgettable Moments
+          Farmside Serenity • Lakeside Luxury • Nature's Embrace
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in">
           <Button 
@@ -33,7 +33,7 @@ const ResortHero = () => {
             variant="outline"
             className="px-8 py-4 text-lg font-medium rounded-full bg-white/20 border-white/40 text-white backdrop-blur-sm hover:bg-white/30"
           >
-            Explore Resort
+            Explore Nature
           </Button>
         </div>
       </div>
