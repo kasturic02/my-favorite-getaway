@@ -2,39 +2,67 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+/* Resort Design System - My Favorite Getaway 
+Luxury resort-inspired colors, gradients, and typography
 All colors MUST be HSL.
 */
 
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Base colors - Ocean and Sand inspired */
+    --background: 40 20% 98%;
+    --foreground: 200 15% 15%;
 
+    /* Card colors - Clean whites with subtle warmth */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 200 15% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 200 15% 15%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Primary - Ocean Blue */
+    --primary: 200 95% 35%;
+    --primary-foreground: 0 0% 98%;
+    --primary-glow: 200 85% 55%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Secondary - Sunset Orange */
+    --secondary: 25 95% 60%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Muted - Sandy neutrals */
+    --muted: 40 15% 95%;
+    --muted-foreground: 200 10% 45%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Accent - Tropical Green */
+    --accent: 150 60% 45%;
+    --accent-foreground: 0 0% 100%;
+
+    /* Resort luxury colors */
+    --luxury-gold: 45 85% 70%;
+    --tropical-teal: 180 85% 45%;
+    --sunset-coral: 15 90% 65%;
+    --palm-green: 140 70% 40%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 40 20% 90%;
+    --input: 40 15% 92%;
+    --ring: 200 95% 35%;
+
+    /* Gradients */
+    --gradient-sunset: linear-gradient(135deg, hsl(25 95% 60%), hsl(15 90% 65%));
+    --gradient-ocean: linear-gradient(135deg, hsl(200 95% 35%), hsl(180 85% 45%));
+    --gradient-tropical: linear-gradient(135deg, hsl(150 60% 45%), hsl(140 70% 40%));
+    --gradient-luxury: linear-gradient(135deg, hsl(45 85% 70%), hsl(25 95% 60%));
+    --gradient-hero: linear-gradient(135deg, hsl(200 95% 35%) 0%, hsl(180 85% 45%) 50%, hsl(25 95% 60%) 100%);
+    
+    /* Shadows with resort theme */
+    --shadow-luxury: 0 20px 40px -10px hsl(200 95% 35% / 0.2);
+    --shadow-warm: 0 10px 30px -5px hsl(25 95% 60% / 0.15);
+    --shadow-soft: 0 4px 20px hsl(0 0% 0% / 0.1);
 
     --radius: 0.5rem;
 
@@ -56,33 +84,51 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* Dark mode with elegant night resort vibes */
+    --background: 200 20% 8%;
+    --foreground: 40 20% 95%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 200 15% 12%;
+    --card-foreground: 40 15% 92%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 200 15% 12%;
+    --popover-foreground: 40 15% 92%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 200 85% 55%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 200 75% 65%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 25 85% 55%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 200 15% 15%;
+    --muted-foreground: 40 10% 60%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 150 50% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --luxury-gold: 45 75% 65%;
+    --tropical-teal: 180 75% 50%;
+    --sunset-coral: 15 80% 60%;
+    --palm-green: 140 60% 45%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --border: 200 15% 20%;
+    --input: 200 15% 18%;
+    --ring: 200 85% 55%;
+
+    /* Dark mode gradients */
+    --gradient-sunset: linear-gradient(135deg, hsl(25 85% 55%), hsl(15 80% 60%));
+    --gradient-ocean: linear-gradient(135deg, hsl(200 85% 55%), hsl(180 75% 50%));
+    --gradient-tropical: linear-gradient(135deg, hsl(150 50% 50%), hsl(140 60% 45%));
+    --gradient-luxury: linear-gradient(135deg, hsl(45 75% 65%), hsl(25 85% 55%));
+    --gradient-hero: linear-gradient(135deg, hsl(200 85% 55%) 0%, hsl(180 75% 50%) 50%, hsl(25 85% 55%) 100%);
+    
+    --shadow-luxury: 0 20px 40px -10px hsl(0 0% 0% / 0.4);
+    --shadow-warm: 0 10px 30px -5px hsl(0 0% 0% / 0.3);
+    --shadow-soft: 0 4px 20px hsl(0 0% 0% / 0.2);
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -100,6 +146,35 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-inter;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-playfair;
+  }
+
+  /* Resort-specific component styles */
+  .resort-hero {
+    background: var(--gradient-hero);
+    @apply shadow-[var(--shadow-luxury)];
+  }
+
+  .resort-card {
+    @apply bg-card border border-border rounded-2xl shadow-[var(--shadow-soft)] backdrop-blur-sm;
+  }
+
+  .resort-button-primary {
+    background: var(--gradient-ocean);
+    @apply text-primary-foreground shadow-[var(--shadow-warm)] hover:shadow-[var(--shadow-luxury)] transition-all duration-300;
+  }
+
+  .resort-button-secondary {
+    background: var(--gradient-sunset);
+    @apply text-secondary-foreground shadow-[var(--shadow-warm)] hover:shadow-[var(--shadow-luxury)] transition-all duration-300;
+  }
+
+  .resort-button-accent {
+    background: var(--gradient-tropical);
+    @apply text-accent-foreground shadow-[var(--shadow-warm)] hover:shadow-[var(--shadow-luxury)] transition-all duration-300;
   }
 }
