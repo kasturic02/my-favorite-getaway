@@ -1,7 +1,10 @@
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import heroImage from "@/assets/hero-farmside.jpg";
 
 const ResortHero = () => {
+  const navigate = useNavigate();
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image */}
@@ -25,6 +28,7 @@ const ResortHero = () => {
           <Button 
             size="lg" 
             className="resort-button-primary px-8 py-4 text-lg font-medium rounded-full"
+            onClick={() => navigate("/reservations")}
           >
             Book Your Stay
           </Button>
