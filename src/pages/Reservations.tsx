@@ -10,6 +10,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const Reservations = () => {
   const navigate = useNavigate();
@@ -30,7 +31,7 @@ const Reservations = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Basic validation
@@ -39,19 +40,41 @@ const Reservations = () => {
       return;
     }
 
-    // Here you would typically send the data to a backend
-    toast.success("Reservation request submitted! We'll contact you soon.");
-    
-    // Reset form
-    setFormData({
-      name: "",
-      email: "",
-      contact: "",
-      guests: "",
-      roomType: ""
-    });
-    setCheckIn(undefined);
-    setCheckOut(undefined);
+    try {
+      const { error } = await supabase
+        .from('Reservations')
+        .insert({
+          'Full Name': formData.name,
+          'Email Address': formData.email,
+          'Contact Number': parseFloat(formData.contact),
+          'Number of Guests': parseFloat(formData.guests),
+          'Room Type': formData.roomType,
+          'check in date': checkIn.toISOString().split('T')[0],
+          'check out date': checkOut.toISOString().split('T')[0]
+        });
+
+      if (error) {
+        toast.error("Failed to submit reservation. Please try again.");
+        console.error('Supabase error:', error);
+        return;
+      }
+
+      toast.success("Reservation submitted successfully! We'll contact you soon.");
+      
+      // Reset form
+      setFormData({
+        name: "",
+        email: "",
+        contact: "",
+        guests: "",
+        roomType: ""
+      });
+      setCheckIn(undefined);
+      setCheckOut(undefined);
+    } catch (error) {
+      toast.error("Failed to submit reservation. Please try again.");
+      console.error('Error:', error);
+    }
   };
 
   return (
