@@ -88,17 +88,26 @@ const ChatBot = () => {
       )}
 
       {/* Floating Chat Button */}
-      <Button
-        onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-4 right-4 h-14 w-14 rounded-full shadow-lg z-50 p-0"
-        size="lg"
-      >
-        {isOpen ? (
-          <X className="h-6 w-6" />
-        ) : (
-          <MessageCircle className="h-6 w-6" />
+      <div className="fixed bottom-4 right-4 flex items-center gap-3 z-50">
+        {!isOpen && (
+          <div className="bg-background/90 backdrop-blur-sm border rounded-full px-4 py-2 shadow-lg">
+            <span className="text-sm font-medium text-foreground whitespace-nowrap">
+              Ask Me anything
+            </span>
+          </div>
         )}
-      </Button>
+        <Button
+          onClick={() => setIsOpen(!isOpen)}
+          className="h-14 w-14 rounded-full shadow-lg p-0"
+          size="lg"
+        >
+          {isOpen ? (
+            <X className="h-6 w-6" />
+          ) : (
+            <MessageCircle className="h-6 w-6" />
+          )}
+        </Button>
+      </div>
     </>
   );
 };
