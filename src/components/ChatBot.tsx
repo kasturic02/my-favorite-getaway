@@ -3,30 +3,57 @@ import { MessageCircle, X, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/components/ui/use-toast';
 
 const ChatBot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([
-    { text: "Hello! How can I help you today?", isBot: true }
+    { 
+      text: "Hello! I'm here to help you with any questions about our luxury eco-resort. Feel free to ask about our accommodations, amenities, dining, activities, or booking information!", 
+      isBot: true 
+    }
   ]);
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!message.trim()) return;
+    if (!message.trim() || isLoading) return;
 
-    // Add user message
-    const newMessages = [...messages, { text: message, isBot: false }];
-    setMessages(newMessages);
+    const userMessage = message;
     setMessage('');
+    setMessages(prev => [...prev, { text: userMessage, isBot: false }]);
+    setIsLoading(true);
 
-    // Add bot response (placeholder for now)
-    setTimeout(() => {
-      setMessages([...newMessages, { 
-        text: "Thank you for your message! Our team will get back to you soon.", 
+    try {
+      const { data, error } = await supabase.functions.invoke('chat-ai', {
+        body: { message: userMessage }
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      setMessages(prev => [...prev, { 
+        text: data.response || "I'm sorry, I couldn't generate a response right now.", 
         isBot: true 
       }]);
-    }, 1000);
+    } catch (error) {
+      console.error('Error calling AI chat:', error);
+      setMessages(prev => [...prev, { 
+        text: "I'm sorry, I'm having trouble responding right now. Please try again or contact our front desk for assistance.", 
+        isBot: true 
+      }]);
+      toast({
+        title: "Connection Error",
+        description: "Unable to connect to chat service. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -78,11 +105,15 @@ const ChatBot = () => {
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 className="flex-1"
+                disabled={isLoading}
               />
-              <Button type="submit" size="sm" className="px-3">
+              <Button type="submit" size="sm" className="px-3" disabled={isLoading || !message.trim()}>
                 <Send className="h-4 w-4" />
               </Button>
             </form>
+            {isLoading && (
+              <p className="text-sm text-muted-foreground mt-2">AI is typing...</p>
+            )}
           </div>
         </Card>
       )}
