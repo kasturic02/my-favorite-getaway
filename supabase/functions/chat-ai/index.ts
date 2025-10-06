@@ -20,7 +20,7 @@ serve(async (req) => {
       throw new Error('Lovable API key not configured');
     }
 
-    const resortContext = `You are a helpful AI assistant for a luxury eco-resort. Customers may reach out to you for general information about a variety of topics related to the resort.You have access to the following information about our resort:
+    const resortContext = `You are a helpful AI assistant for a luxury eco-resort. Customers may reach out to you for general information about a variety of topics related to the resort. Always provide the exact accurate information as given to you and do not paraphrase. You have access to the following information about our resort:
 
 ACCOMMODATIONS:
 - Luxury Cabin Suite: Premium lakeside accommodation with modern amenities
