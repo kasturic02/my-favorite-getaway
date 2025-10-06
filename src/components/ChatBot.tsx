@@ -28,8 +28,20 @@ const ChatBot = () => {
     setIsLoading(true);
 
     try {
+      // Convert chat history to API format
+      const conversationHistory = messages.map(msg => ({
+        role: msg.isBot ? 'assistant' : 'user',
+        content: msg.text
+      }));
+      
+      // Add the new user message
+      conversationHistory.push({
+        role: 'user',
+        content: userMessage
+      });
+
       const { data, error } = await supabase.functions.invoke('chat-ai', {
-        body: { message: userMessage }
+        body: { messages: conversationHistory }
       });
 
       if (error) {
