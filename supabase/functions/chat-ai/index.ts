@@ -77,7 +77,7 @@ Always be helpful, friendly, and provide accurate information about our resort. 
           { role: 'user', content: message }
         ],
         max_tokens: 500,
-        temperature: 0.7,
+        temperature: 0.3,
       }),
     });
 
