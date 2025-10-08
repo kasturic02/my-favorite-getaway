@@ -36,8 +36,9 @@ const ResortHero = () => {
             size="lg" 
             variant="outline"
             className="px-8 py-4 text-lg font-medium rounded-full bg-white/20 border-white/40 text-white backdrop-blur-sm hover:bg-white/30"
+            onClick={() => navigate("/gallery")}
           >
-            Explore Nature
+            Take a Virtual Tour
           </Button>
         </div>
       </div>
