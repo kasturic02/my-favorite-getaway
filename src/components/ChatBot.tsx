@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MessageCircle, X, Send } from 'lucide-react';
+import { MessageCircle, X, Send, Maximize2, Minimize2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -8,6 +8,7 @@ import { useToast } from '@/components/ui/use-toast';
 
 const ChatBot = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isMaximized, setIsMaximized] = useState(false);
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([
     { 
@@ -72,21 +73,39 @@ const ChatBot = () => {
     <>
       {/* Chat Window */}
       {isOpen && (
-        <Card className="fixed bottom-20 right-4 w-80 h-96 flex flex-col shadow-lg z-50 bg-background border">
+        <Card className={`fixed flex flex-col shadow-lg z-50 bg-background border transition-all duration-300 ${
+          isMaximized 
+            ? 'inset-4 w-auto h-auto' 
+            : 'bottom-20 right-4 w-80 h-96'
+        }`}>
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b">
             <div className="flex items-center gap-2">
               <MessageCircle className="h-5 w-5 text-primary" />
               <span className="font-semibold">Chat Support</span>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsOpen(false)}
-              className="h-8 w-8 p-0"
-            >
-              <X className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsMaximized(!isMaximized)}
+                className="h-8 w-8 p-0"
+              >
+                {isMaximized ? (
+                  <Minimize2 className="h-4 w-4" />
+                ) : (
+                  <Maximize2 className="h-4 w-4" />
+                )}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsOpen(false)}
+                className="h-8 w-8 p-0"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
 
           {/* Messages */}
