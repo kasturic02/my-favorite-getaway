@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft, Image } from 'lucide-react';
+import { ArrowLeft, Image, Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Gallery = () => {
@@ -14,6 +14,33 @@ const Gallery = () => {
     { name: 'Farms', count: 15, color: 'from-amber-500 to-amber-600' },
     { name: 'Nature Trail', count: 20, color: 'from-emerald-500 to-emerald-600' },
     { name: 'Lake', count: 10, color: 'from-cyan-500 to-cyan-600' },
+  ];
+
+  const reviews = [
+    {
+      name: 'Sarah Mitchell',
+      rating: 5,
+      review: 'Absolutely breathtaking! The nature trails were serene and the villa was luxurious. The organic farm experience was a highlight for our kids. We felt completely disconnected from the city chaos.',
+      date: 'March 2024'
+    },
+    {
+      name: 'Rajesh Kumar',
+      rating: 5,
+      review: 'The lakeside views from our villa were stunning. Staff was incredibly attentive and the farm-to-table dining experience was exceptional. Perfect getaway for families.',
+      date: 'February 2024'
+    },
+    {
+      name: 'Emily Chen',
+      rating: 5,
+      review: 'A hidden gem! The common areas are beautifully designed and the entire property is immaculate. Loved the morning walks through the nature trail and fresh produce from the farm.',
+      date: 'January 2024'
+    },
+    {
+      name: 'Michael Brown',
+      rating: 5,
+      review: 'Best resort experience ever! The combination of luxury accommodation and natural surroundings is perfect. The lake activities and organic farming tours made our stay memorable.',
+      date: 'December 2023'
+    }
   ];
 
   return (
@@ -75,6 +102,35 @@ const Gallery = () => {
             </p>
           </div>
         )}
+
+        {/* Reviews Section */}
+        <section className="mt-16">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-3">What our Guests have to say</h2>
+            <p className="text-muted-foreground">Hear from those who experienced the magic of our resort</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {reviews.map((review, index) => (
+              <Card key={index} className="hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h4 className="font-semibold text-lg">{review.name}</h4>
+                      <p className="text-sm text-muted-foreground">{review.date}</p>
+                    </div>
+                    <div className="flex gap-1">
+                      {[...Array(review.rating)].map((_, i) => (
+                        <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
+                      ))}
+                    </div>
+                  </div>
+                  <p className="text-muted-foreground leading-relaxed">{review.review}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
       </main>
     </div>
   );
