@@ -8,12 +8,15 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { CalendarIcon, ArrowLeft } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
 const Reservations = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const preSelectedRoomType = location.state?.roomType || "";
+  
   const [checkIn, setCheckIn] = useState<Date>();
   const [checkOut, setCheckOut] = useState<Date>();
   const [formData, setFormData] = useState({
@@ -21,7 +24,7 @@ const Reservations = () => {
     email: "",
     contact: "",
     guests: "",
-    roomType: ""
+    roomType: preSelectedRoomType
   });
 
   const handleInputChange = (field: string, value: string) => {

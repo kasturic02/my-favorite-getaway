@@ -1,10 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useNavigate } from "react-router-dom";
 import cabinImage from "@/assets/cabin-lakeside.jpg";
 import villaImage from "@/assets/villa-hillside.jpg";
 import luxuryCabinImage from "@/assets/luxury-cabin-suite.jpg";
 
 const RoomShowcase = () => {
+  const navigate = useNavigate();
+  
   const accommodations = [
     {
       title: "Lakeside Cabin",
@@ -12,7 +15,8 @@ const RoomShowcase = () => {
       price: "$250",
       capacity: "2 People",
       image: cabinImage,
-      features: ["Lake View", "Fireplace", "Private Deck", "Kitchenette"]
+      features: ["Lake View", "Fireplace", "Private Deck", "Kitchenette"],
+      roomTypeValue: "lakeside-cabin"
     },
     {
       title: "Family Villa",
@@ -20,7 +24,8 @@ const RoomShowcase = () => {
       price: "$450", 
       capacity: "4 People",
       image: villaImage,
-      features: ["Hill View", "Full Kitchen", "Multiple Bedrooms", "Garden Access"]
+      features: ["Hill View", "Full Kitchen", "Multiple Bedrooms", "Garden Access"],
+      roomTypeValue: "hillside-villa"
     },
     {
       title: "Luxury Cabin Suite",
@@ -28,9 +33,14 @@ const RoomShowcase = () => {
       price: "$350",
       capacity: "3 People", 
       image: luxuryCabinImage,
-      features: ["Panoramic Lake View", "Hot Tub", "Premium Furnishing", "Room Service"]
+      features: ["Panoramic Lake View", "Hot Tub", "Premium Furnishing", "Room Service"],
+      roomTypeValue: "luxury-cabin-suite"
     }
   ];
+
+  const handleReserveClick = (roomTypeValue: string) => {
+    navigate('/reservations', { state: { roomType: roomTypeValue } });
+  };
 
   return (
     <section className="py-20 px-6 bg-muted/30">
@@ -78,7 +88,10 @@ const RoomShowcase = () => {
                   ))}
                 </div>
                 
-                <Button className="resort-button-primary w-full rounded-full font-medium">
+                <Button 
+                  className="resort-button-primary w-full rounded-full font-medium"
+                  onClick={() => handleReserveClick(room.roomTypeValue)}
+                >
                   Reserve Now
                 </Button>
               </CardContent>
