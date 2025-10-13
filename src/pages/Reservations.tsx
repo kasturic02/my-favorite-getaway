@@ -62,7 +62,30 @@ const Reservations = () => {
         return;
       }
 
-      toast.success("Reservation submitted successfully! We'll contact you soon.");
+      // Send confirmation email
+      try {
+        const { error: emailError } = await supabase.functions.invoke('send-reservation-email', {
+          body: {
+            name: formData.name,
+            email: formData.email,
+            contact: formData.contact,
+            guests: formData.guests,
+            roomType: formData.roomType,
+            checkInDate: checkIn.toISOString().split('T')[0],
+            checkOutDate: checkOut.toISOString().split('T')[0]
+          }
+        });
+
+        if (emailError) {
+          console.error('Email sending error:', emailError);
+          toast.success("Reservation submitted! (Email notification may be delayed)");
+        } else {
+          toast.success("Reservation confirmed! Check your email for details.");
+        }
+      } catch (emailError) {
+        console.error('Email error:', emailError);
+        toast.success("Reservation submitted! (Email notification may be delayed)");
+      }
       
       // Reset form
       setFormData({
