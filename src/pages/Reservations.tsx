@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { CalendarIcon, ArrowLeft } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -19,6 +20,7 @@ const Reservations = () => {
   
   const [checkIn, setCheckIn] = useState<Date>();
   const [checkOut, setCheckOut] = useState<Date>();
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -78,13 +80,9 @@ const Reservations = () => {
 
         if (emailError) {
           console.error('Email sending error:', emailError);
-          toast.success("Reservation submitted! (Email notification may be delayed)");
-        } else {
-          toast.success("Reservation confirmed! Check your email for details.");
         }
       } catch (emailError) {
         console.error('Email error:', emailError);
-        toast.success("Reservation submitted! (Email notification may be delayed)");
       }
       
       // Reset form
@@ -97,6 +95,9 @@ const Reservations = () => {
       });
       setCheckIn(undefined);
       setCheckOut(undefined);
+      
+      // Show success dialog
+      setShowSuccessDialog(true);
     } catch (error) {
       toast.error("Failed to submit reservation. Please try again.");
       console.error('Error:', error);
@@ -278,6 +279,23 @@ const Reservations = () => {
           </div>
         </div>
       </div>
+
+      {/* Success Dialog */}
+      <AlertDialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Thank you!</AlertDialogTitle>
+            <AlertDialogDescription className="text-base leading-relaxed">
+              We have received your reservation request. Sit Back and Relax! Our representative will contact you within 24 hours to discuss and confirm your reservation. Please note your reservation is not complete until our representative confirms the same on call, you will receive further details thereafter.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <Button onClick={() => setShowSuccessDialog(false)}>
+              Close
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
