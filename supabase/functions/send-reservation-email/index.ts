@@ -37,9 +37,9 @@ const handler = async (req: Request): Promise<Response> => {
       .join(' ');
 
     const emailResponse = await resend.emails.send({
-      from: "Farmside Lakeside Resort <onboarding@resend.dev>",
+      from: "My Favorite Getaway <onboarding@resend.dev>",
       to: [email],
-      subject: "Reservation Confirmation - Farmside Lakeside Resort",
+      subject: "Reservation Request Received - My Favorite Getaway",
       html: `
         <!DOCTYPE html>
         <html>
@@ -98,14 +98,14 @@ const handler = async (req: Request): Promise<Response> => {
           </head>
           <body>
             <div class="header">
-              <h1 style="margin: 0; font-size: 28px;">Reservation Confirmed!</h1>
-              <p style="margin: 10px 0 0 0; opacity: 0.9;">Farmside Lakeside Resort</p>
+              <h1 style="margin: 0; font-size: 28px;">Reservation Request Received</h1>
+              <p style="margin: 10px 0 0 0; opacity: 0.9;">My Favorite Getaway</p>
             </div>
             
             <div class="content">
               <p>Dear ${name},</p>
               
-              <p>Thank you for choosing Farmside Lakeside Resort! We're delighted to confirm your reservation request.</p>
+              <p>Thank you for choosing My Favorite Getaway! We have received your reservation request.</p>
               
               <div class="highlight">
                 <h2 style="margin-top: 0; color: #2c5530;">Your Booking Details</h2>
@@ -150,12 +150,12 @@ const handler = async (req: Request): Promise<Response> => {
               
               <p style="margin-top: 20px;">
                 Warm regards,<br>
-                <strong>Farmside Lakeside Resort Team</strong>
+                <strong>My Favorite Getaway Team</strong>
               </p>
             </div>
             
             <div class="footer">
-              <p style="margin: 0;">Farmside Lakeside Resort</p>
+              <p style="margin: 0;">My Favorite Getaway</p>
               <p style="margin: 5px 0;">Your Perfect Getaway Destination</p>
             </div>
           </body>
