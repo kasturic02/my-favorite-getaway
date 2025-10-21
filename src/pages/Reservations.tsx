@@ -58,7 +58,7 @@ const Reservations = () => {
           'Room Type': formData.roomType,
           'check in date': checkIn.toISOString().split('T')[0],
           'check out date': checkOut.toISOString().split('T')[0],
-          'Dream Getaway': formData.dreamGetaway
+          'Special Requests from Customer': formData.dreamGetaway
         });
 
       if (error) {
