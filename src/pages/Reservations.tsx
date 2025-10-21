@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -26,7 +27,8 @@ const Reservations = () => {
     email: "",
     contact: "",
     guests: "",
-    roomType: preSelectedRoomType
+    roomType: preSelectedRoomType,
+    dreamGetaway: ""
   });
 
   const handleInputChange = (field: string, value: string) => {
@@ -55,7 +57,8 @@ const Reservations = () => {
           'Number of Guests': parseFloat(formData.guests),
           'Room Type': formData.roomType,
           'check in date': checkIn.toISOString().split('T')[0],
-          'check out date': checkOut.toISOString().split('T')[0]
+          'check out date': checkOut.toISOString().split('T')[0],
+          'Dream Getaway': formData.dreamGetaway
         });
 
       if (error) {
@@ -91,7 +94,8 @@ const Reservations = () => {
         email: "",
         contact: "",
         guests: "",
-        roomType: ""
+        roomType: "",
+        dreamGetaway: ""
       });
       setCheckIn(undefined);
       setCheckOut(undefined);
@@ -262,6 +266,20 @@ const Reservations = () => {
                       </PopoverContent>
                     </Popover>
                   </div>
+                </div>
+              </div>
+
+              {/* Dream Getaway */}
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="dreamGetaway">Tell Us about your dream getaway</Label>
+                  <Textarea
+                    id="dreamGetaway"
+                    value={formData.dreamGetaway}
+                    onChange={(e) => handleInputChange("dreamGetaway", e.target.value)}
+                    placeholder="Are you ready for your personalized dream getaway? Tell us what you are looking for and we will make sure our customer service representatives make this vacation a memorable experience for you!"
+                    className="mt-1 min-h-[120px]"
+                  />
                 </div>
               </div>
 
