@@ -172,7 +172,7 @@ const ContactSection = () => {
                   </div>
                   <div>
                     <h4 className="font-bold text-foreground">Resort Address</h4>
-                    <p className="text-muted-foreground">123 Paradise Beach Drive<br />Tropical Island, TI 12345</p>
+                    <p className="text-muted-foreground">123 Mountain Drive<br />Fantasy Hills, TI 12345</p>
                   </div>
                 </div>
                 
