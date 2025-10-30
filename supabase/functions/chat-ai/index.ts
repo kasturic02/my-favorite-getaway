@@ -1,5 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -15,10 +16,18 @@ serve(async (req) => {
   try {
     const { messages } = await req.json();
     const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
     if (!lovableApiKey) {
       throw new Error('Lovable API key not configured');
     }
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+      throw new Error('Supabase configuration not found');
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const resortContext = `ROLE AND PRIMARY DIRECTIVE:
 You are a helpful AI assistant for a luxury eco-resort. Your PRIMARY goal is to provide EXACT, ACCURATE information as given below.
@@ -76,7 +85,9 @@ A: You can make reservations through our website by filling up the Request to Re
 AIRPORT TRANSFER BOOKING:
 - When guests ask about airport transfers or want to book one, offer to help them book immediately
 - You have access to a book_airport_transfer function to complete bookings
+- IMPORTANT: Guests MUST have a valid Booking Reference Number from their reservation to book airport transfers
 - Collect the following information conversationally (not all at once):
+  * Booking reference number (REQUIRED - must match an existing reservation)
   * Guest name
   * Email address
   * Contact number
@@ -84,7 +95,8 @@ AIRPORT TRANSFER BOOKING:
   * Flight number
   * Any special requests (optional)
 - Once you have all required information, use the book_airport_transfer function
-- Confirm the booking with the guest and provide the booking reference number
+- If the booking reference is invalid, politely inform the guest and ask them to verify their reservation
+- Upon successful booking, confirm with the guest and provide reassurance that the transfer has been arranged
 
 FALLBACK INSTRUCTIONS:
 - If a question does NOT match an FAQ, provide helpful information based on the resort details above
@@ -159,6 +171,186 @@ FALLBACK INSTRUCTIONS:
     }
 
     const data = await response.json();
+    
+    // Check if the AI wants to use a tool
+    if (data.choices[0].message.tool_calls) {
+      const toolCall = data.choices[0].message.tool_calls[0];
+      
+      if (toolCall.function.name === 'book_airport_transfer') {
+        console.log('Processing airport transfer booking...');
+        const args = JSON.parse(toolCall.function.arguments);
+        
+        // Validate booking reference number against Reservations table
+        const { data: reservation, error: reservationError } = await supabase
+          .from('Reservations')
+          .select('*')
+          .eq('Booking Reference Number', args.bookingReferenceNumber)
+          .maybeSingle();
+        
+        if (reservationError) {
+          console.error('Error checking reservation:', reservationError);
+          
+          // Send tool error back to AI
+          const errorResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${lovableApiKey}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model: 'google/gemini-2.5-flash',
+              messages: [
+                { role: 'system', content: resortContext },
+                ...messages,
+                data.choices[0].message,
+                {
+                  role: 'tool',
+                  tool_call_id: toolCall.id,
+                  content: JSON.stringify({
+                    success: false,
+                    error: 'Unable to verify booking reference. Please try again later.'
+                  })
+                }
+              ],
+              max_tokens: 500,
+              temperature: 0.2,
+            }),
+          });
+          
+          const errorData = await errorResponse.json();
+          return new Response(JSON.stringify({ response: errorData.choices[0].message.content }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        if (!reservation) {
+          console.log('Invalid booking reference number');
+          
+          // Send tool result back to AI indicating invalid booking reference
+          const invalidResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${lovableApiKey}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model: 'google/gemini-2.5-flash',
+              messages: [
+                { role: 'system', content: resortContext },
+                ...messages,
+                data.choices[0].message,
+                {
+                  role: 'tool',
+                  tool_call_id: toolCall.id,
+                  content: JSON.stringify({
+                    success: false,
+                    error: 'Invalid booking reference number. Please verify your booking reference and try again.'
+                  })
+                }
+              ],
+              max_tokens: 500,
+              temperature: 0.2,
+            }),
+          });
+          
+          const invalidData = await invalidResponse.json();
+          return new Response(JSON.stringify({ response: invalidData.choices[0].message.content }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        // Booking reference is valid, insert into Airport Transfers table
+        const { data: transferData, error: insertError } = await supabase
+          .from('Airport Transfers')
+          .insert({
+            'Guest Name': args.guestName,
+            'Guest Email ID': args.guestEmail,
+            'Guest Contact Number': args.contactNumber,
+            'Number of Guests': args.numberOfGuests,
+            'Flight Number': args.flightNumber,
+            'Booking Reference Number': args.bookingReferenceNumber,
+            'Special Request': args.specialRequest || null,
+            'Status': 'Booking Received'
+          })
+          .select()
+          .single();
+        
+        if (insertError) {
+          console.error('Error inserting airport transfer:', insertError);
+          
+          // Send tool error back to AI
+          const errorResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${lovableApiKey}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model: 'google/gemini-2.5-flash',
+              messages: [
+                { role: 'system', content: resortContext },
+                ...messages,
+                data.choices[0].message,
+                {
+                  role: 'tool',
+                  tool_call_id: toolCall.id,
+                  content: JSON.stringify({
+                    success: false,
+                    error: 'Failed to book airport transfer. Please contact our front desk.'
+                  })
+                }
+              ],
+              max_tokens: 500,
+              temperature: 0.2,
+            }),
+          });
+          
+          const errorData = await errorResponse.json();
+          return new Response(JSON.stringify({ response: errorData.choices[0].message.content }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
+        console.log('Airport transfer booked successfully:', transferData);
+        
+        // Send tool result back to AI for confirmation message
+        const confirmResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${lovableApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'google/gemini-2.5-flash',
+            messages: [
+              { role: 'system', content: resortContext },
+              ...messages,
+              data.choices[0].message,
+              {
+                role: 'tool',
+                tool_call_id: toolCall.id,
+                content: JSON.stringify({
+                  success: true,
+                  transferId: transferData.id,
+                  bookingReference: args.bookingReferenceNumber,
+                  guestName: args.guestName,
+                  flightNumber: args.flightNumber,
+                  numberOfGuests: args.numberOfGuests
+                })
+              }
+            ],
+            max_tokens: 500,
+            temperature: 0.2,
+          }),
+        });
+        
+        const confirmData = await confirmResponse.json();
+        return new Response(JSON.stringify({ response: confirmData.choices[0].message.content }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    }
+
     const aiResponse = data.choices[0].message.content;
 
     console.log('AI response generated successfully');
