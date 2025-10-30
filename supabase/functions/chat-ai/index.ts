@@ -73,6 +73,19 @@ A: You can make reservations through our website by filling up the Request to Re
 
 ===== END OF FAQs =====
 
+AIRPORT TRANSFER BOOKING:
+- When guests ask about airport transfers or want to book one, offer to help them book immediately
+- You have access to a book_airport_transfer function to complete bookings
+- Collect the following information conversationally (not all at once):
+  * Guest name
+  * Email address
+  * Contact number
+  * Number of guests
+  * Flight number
+  * Any special requests (optional)
+- Once you have all required information, use the book_airport_transfer function
+- Confirm the booking with the guest and provide the booking reference number
+
 FALLBACK INSTRUCTIONS:
 - If a question does NOT match an FAQ, provide helpful information based on the resort details above
 - Maintain a friendly yet formal tone
@@ -93,6 +106,45 @@ FALLBACK INSTRUCTIONS:
         ],
         max_tokens: 500,
         temperature: 0.2,
+        tools: [
+          {
+            type: 'function',
+            function: {
+              name: 'book_airport_transfer',
+              description: 'Books an airport transfer for a guest. Use this when a guest wants to arrange airport pickup or transfer service. Collect all required information before calling this function.',
+              parameters: {
+                type: 'object',
+                properties: {
+                  guestName: {
+                    type: 'string',
+                    description: 'Full name of the guest'
+                  },
+                  guestEmail: {
+                    type: 'string',
+                    description: 'Email address of the guest'
+                  },
+                  contactNumber: {
+                    type: 'number',
+                    description: 'Contact phone number of the guest'
+                  },
+                  numberOfGuests: {
+                    type: 'number',
+                    description: 'Total number of guests requiring transfer'
+                  },
+                  flightNumber: {
+                    type: 'string',
+                    description: 'Flight number for arrival or departure'
+                  },
+                  specialRequest: {
+                    type: 'string',
+                    description: 'Any special requests or requirements (optional)'
+                  }
+                },
+                required: ['guestName', 'guestEmail', 'contactNumber', 'numberOfGuests', 'flightNumber']
+              }
+            }
+          }
+        ]
       }),
     });
 
