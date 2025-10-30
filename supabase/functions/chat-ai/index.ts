@@ -135,12 +135,16 @@ FALLBACK INSTRUCTIONS:
                     type: 'string',
                     description: 'Flight number for arrival or departure'
                   },
+                  bookingReferenceNumber: {
+                    type: 'string',
+                    description: 'Booking reference number for the reservation'
+                  },
                   specialRequest: {
                     type: 'string',
                     description: 'Any special requests or requirements (optional)'
                   }
                 },
-                required: ['guestName', 'guestEmail', 'contactNumber', 'numberOfGuests', 'flightNumber']
+                required: ['guestName', 'guestEmail', 'contactNumber', 'numberOfGuests', 'flightNumber', 'bookingReferenceNumber']
               }
             }
           }
