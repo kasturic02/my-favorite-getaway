@@ -112,7 +112,7 @@ REQUIRED INFORMATION TO COLLECT:
 AFTER SUCCESSFUL BOOKING:
 - Warmly confirm the transfer has been arranged
 - Reassure the guest that the details have been received
-- Mention that we'll be in touch 24 hours before arrival with driver details
+- Mention that we'll be in touch 3 hours before arrival with driver details
 - Thank them and ask if there's anything else you can help with
 
 ERROR HANDLING:
