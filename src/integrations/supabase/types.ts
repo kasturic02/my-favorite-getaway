@@ -14,8 +14,88 @@ export type Database = {
   }
   public: {
     Tables: {
+      "Airport Transfers": {
+        Row: {
+          "Booking Reference Number": string
+          created_at: string
+          "Flight Number": string
+          "Guest Contact Number": number
+          "Guest Email ID": string
+          "Guest Name": string
+          id: number
+          "Number of Guests": number
+          "Special Request": string | null
+          Status: string
+        }
+        Insert: {
+          "Booking Reference Number": string
+          created_at?: string
+          "Flight Number": string
+          "Guest Contact Number": number
+          "Guest Email ID": string
+          "Guest Name": string
+          id?: number
+          "Number of Guests": number
+          "Special Request"?: string | null
+          Status?: string
+        }
+        Update: {
+          "Booking Reference Number"?: string
+          created_at?: string
+          "Flight Number"?: string
+          "Guest Contact Number"?: number
+          "Guest Email ID"?: string
+          "Guest Name"?: string
+          id?: number
+          "Number of Guests"?: number
+          "Special Request"?: string | null
+          Status?: string
+        }
+        Relationships: []
+      }
+      "Customer Requests": {
+        Row: {
+          "CR Assigned": string | null
+          "CR Notes": string | null
+          created_at: string
+          Email: string | null
+          "First Name": string | null
+          id: number
+          "Last Name": string | null
+          "Message / Request": string
+          Phone: number | null
+          "Request Status": string | null
+        }
+        Insert: {
+          "CR Assigned"?: string | null
+          "CR Notes"?: string | null
+          created_at?: string
+          Email?: string | null
+          "First Name"?: string | null
+          id?: number
+          "Last Name"?: string | null
+          "Message / Request": string
+          Phone?: number | null
+          "Request Status"?: string | null
+        }
+        Update: {
+          "CR Assigned"?: string | null
+          "CR Notes"?: string | null
+          created_at?: string
+          Email?: string | null
+          "First Name"?: string | null
+          id?: number
+          "Last Name"?: string | null
+          "Message / Request"?: string
+          Phone?: number | null
+          "Request Status"?: string | null
+        }
+        Relationships: []
+      }
       Reservations: {
         Row: {
+          "Booking Reference Number": string | null
+          "Booking Status": string | null
           "check in date": string | null
           "check out date": string
           "Contact Number": number | null
@@ -25,8 +105,11 @@ export type Database = {
           id: number
           "Number of Guests": number
           "Room Type": string
+          "Special Requests from Customer": string | null
         }
         Insert: {
+          "Booking Reference Number"?: string | null
+          "Booking Status"?: string | null
           "check in date"?: string | null
           "check out date": string
           "Contact Number"?: number | null
@@ -36,8 +119,11 @@ export type Database = {
           id?: number
           "Number of Guests": number
           "Room Type": string
+          "Special Requests from Customer"?: string | null
         }
         Update: {
+          "Booking Reference Number"?: string | null
+          "Booking Status"?: string | null
           "check in date"?: string | null
           "check out date"?: string
           "Contact Number"?: number | null
@@ -47,6 +133,7 @@ export type Database = {
           id?: number
           "Number of Guests"?: number
           "Room Type"?: string
+          "Special Requests from Customer"?: string | null
         }
         Relationships: []
       }

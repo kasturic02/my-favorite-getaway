@@ -204,11 +204,17 @@ FALLBACK INSTRUCTIONS:
         const args = JSON.parse(toolCall.function.arguments);
         
         // Validate booking reference number against Reservations table
+        console.log('Looking for booking reference:', args.bookingReferenceNumber);
+        console.log('Booking reference type:', typeof args.bookingReferenceNumber);
+        
         const { data: reservation, error: reservationError } = await supabase
           .from('Reservations')
           .select('*')
-          .eq('Booking Reference Number', args.bookingReferenceNumber)
+          .eq('Booking Reference Number', String(args.bookingReferenceNumber).trim())
           .maybeSingle();
+        
+        console.log('Reservation lookup result:', reservation);
+        console.log('Reservation lookup error:', reservationError);
         
         if (reservationError) {
           console.error('Error checking reservation:', reservationError);
