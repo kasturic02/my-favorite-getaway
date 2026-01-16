@@ -117,6 +117,7 @@ AFTER SUCCESSFUL BOOKING:
 
 ERROR HANDLING:
 - If booking reference is invalid: "I'm unable to find that booking reference in our system. Could you please double-check the reference number from your reservation confirmation?"
+- If a transfer request already exists for that booking reference (tool returns alreadyExists=true): confirm we already have their request on file and share the current status; if they need changes, ask them to contact the front desk.
 - If database error occurs: "I apologize, but I'm having trouble completing the booking right now. Please contact our front desk at +1 XXX-YYY-ZZZZ and they'll arrange your transfer immediately."
 - Always remain helpful and provide alternative solutions
 - Never expose technical error details to guests
@@ -204,13 +205,15 @@ FALLBACK INSTRUCTIONS:
         const args = JSON.parse(toolCall.function.arguments);
         
         // Validate booking reference number against Reservations table
-        console.log('Looking for booking reference:', args.bookingReferenceNumber);
+        const bookingRef = String(args.bookingReferenceNumber ?? '').trim();
+        console.log('Looking for booking reference:', bookingRef);
+        console.log('Booking reference raw value:', args.bookingReferenceNumber);
         console.log('Booking reference type:', typeof args.bookingReferenceNumber);
         
         const { data: reservation, error: reservationError } = await supabase
           .from('Reservations')
           .select('*')
-          .eq('Booking Reference Number', String(args.bookingReferenceNumber).trim())
+          .eq('Booking Reference Number', bookingRef)
           .maybeSingle();
         
         console.log('Reservation lookup result:', reservation);
@@ -288,8 +291,10 @@ FALLBACK INSTRUCTIONS:
           });
         }
         
-        // Booking reference is valid, insert into Airport Transfers table
-        const { data: transferData, error: insertError } = await supabase
+        // Booking reference is valid, create (or retrieve) airport transfer record
+        let transferAlreadyExists = false;
+
+        const { data: insertedTransfer, error: insertError } = await supabase
           .from('Airport Transfers')
           .insert({
             'Guest Name': args.guestName,
@@ -297,50 +302,108 @@ FALLBACK INSTRUCTIONS:
             'Guest Contact Number': args.contactNumber,
             'Number of Guests': args.numberOfGuests,
             'Flight Number': args.flightNumber,
-            'Booking Reference Number': args.bookingReferenceNumber,
+            'Booking Reference Number': bookingRef,
             'Special Request': args.specialRequest || null,
             'Status': 'Booking Received'
           })
           .select()
           .single();
-        
+
+        let transferData = insertedTransfer;
+
         if (insertError) {
-          console.error('Error inserting airport transfer:', insertError);
-          
-          // Send tool error back to AI
-          const errorResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${lovableApiKey}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              model: 'google/gemini-2.5-flash',
-              messages: [
-                { role: 'system', content: resortContext },
-                ...messages,
-                data.choices[0].message,
-                {
-                  role: 'tool',
-                  tool_call_id: toolCall.id,
-                  content: JSON.stringify({
-                    success: false,
-                    error: 'Failed to book airport transfer. Please contact our front desk.'
-                  })
-                }
-              ],
-              max_tokens: 500,
-              temperature: 0.2,
-            }),
-          });
-          
-          const errorData = await errorResponse.json();
-          return new Response(JSON.stringify({ response: errorData.choices[0].message.content }), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          });
+          // If the guest already requested a transfer for this booking reference, fetch it and confirm instead of failing.
+          if (insertError.code === '23505') {
+            transferAlreadyExists = true;
+            console.log('Airport transfer already exists for booking reference:', bookingRef);
+
+            const { data: existingTransfer, error: existingTransferError } = await supabase
+              .from('Airport Transfers')
+              .select('*')
+              .eq('Booking Reference Number', bookingRef)
+              .order('created_at', { ascending: false })
+              .limit(1)
+              .maybeSingle();
+
+            if (existingTransferError || !existingTransfer) {
+              console.error('Error fetching existing airport transfer:', existingTransferError);
+
+              const errorResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${lovableApiKey}`,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  model: 'google/gemini-2.5-flash',
+                  messages: [
+                    { role: 'system', content: resortContext },
+                    ...messages,
+                    data.choices[0].message,
+                    {
+                      role: 'tool',
+                      tool_call_id: toolCall.id,
+                      content: JSON.stringify({
+                        success: false,
+                        error: 'Failed to book airport transfer. Please contact our front desk.'
+                      })
+                    }
+                  ],
+                  max_tokens: 500,
+                  temperature: 0.2,
+                }),
+              });
+
+              const errorData = await errorResponse.json();
+              return new Response(JSON.stringify({ response: errorData.choices[0].message.content }), {
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+              });
+            }
+
+            transferData = existingTransfer;
+          } else {
+            console.error('Error inserting airport transfer:', insertError);
+
+            // Send tool error back to AI
+            const errorResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${lovableApiKey}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                model: 'google/gemini-2.5-flash',
+                messages: [
+                  { role: 'system', content: resortContext },
+                  ...messages,
+                  data.choices[0].message,
+                  {
+                    role: 'tool',
+                    tool_call_id: toolCall.id,
+                    content: JSON.stringify({
+                      success: false,
+                      error: 'Failed to book airport transfer. Please contact our front desk.'
+                    })
+                  }
+                ],
+                max_tokens: 500,
+                temperature: 0.2,
+              }),
+            });
+
+            const errorData = await errorResponse.json();
+            return new Response(JSON.stringify({ response: errorData.choices[0].message.content }), {
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+          }
         }
-        
-        console.log('Airport transfer booked successfully:', transferData);
+
+        console.log(
+          transferAlreadyExists
+            ? 'Airport transfer already on file:'
+            : 'Airport transfer booked successfully:',
+          transferData
+        );
         
         // Send tool result back to AI for confirmation message
         const confirmResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
@@ -360,11 +423,13 @@ FALLBACK INSTRUCTIONS:
                 tool_call_id: toolCall.id,
                 content: JSON.stringify({
                   success: true,
+                  alreadyExists: transferAlreadyExists,
                   transferId: transferData.id,
-                  bookingReference: args.bookingReferenceNumber,
-                  guestName: args.guestName,
-                  flightNumber: args.flightNumber,
-                  numberOfGuests: args.numberOfGuests
+                  bookingReference: bookingRef,
+                  guestName: transferData['Guest Name'] ?? args.guestName,
+                  flightNumber: transferData['Flight Number'] ?? args.flightNumber,
+                  numberOfGuests: transferData['Number of Guests'] ?? args.numberOfGuests,
+                  status: transferData['Status'] ?? 'Booking Received'
                 })
               }
             ],
