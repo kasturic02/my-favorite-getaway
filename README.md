@@ -2,6 +2,10 @@ Goal:
 
 Build a live prototype for a simple hotel website and reservation system. Design the webiste to give all important information to users like room types, tariffs, activities and location. Also add a section where users can put in their special requests / queries. 
 
+Features Added:
+
+The live website offers a form where users can put in their details including special requests and submit a reservation request. Once the user submits the request, they will immdeiately receive an automatic email confirmation mentioning the request details and that the user should receive a call from resort staff in the next 24 hours to discuss the requirements and finalize the booking post payment. Parallelly, it also adds an entry to the database accessible to the internal resort staff using which resort staff can connect with the guest in order to plan their customized stay and then finalise the booking. 
+
 Integrated a conversational chatbot built on a Large Language Model (LLM) to help users get instant answers to common customer queries. The chatbot is designed to simulate real customer support interactions — providing personalized, context-aware responses that enhance user experience and reduce manual support overhead.
 
 Designed and implemented an automated email workflow to improve user engagement and trust during the reservation process. When a user submits a reservation request, the system instantly triggers a personalized confirmation email containing booking details. This was achieved by integrating an email service (e.g., Resend API / Lovable’s automation layer) that ensures reliable, real-time delivery
