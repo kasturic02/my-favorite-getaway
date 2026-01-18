@@ -95,13 +95,16 @@ WHEN TO OFFER AIRPORT TRANSFERS:
 HOW TO COLLECT INFORMATION CONVERSATIONALLY:
 - Be warm, helpful, and natural - NOT like filling out a form
 - Start by asking for their booking reference number first (explain you need this to arrange the transfer)
+- As soon as the guest provides the booking reference number, ALWAYS call the verify_booking_reference tool to validate it in the Reservations table
+- Never say you cannot find a booking reference until verify_booking_reference has returned exists=false
+- Only if verify_booking_reference returns exists=true should you continue collecting the remaining details
 - Then collect other details in a friendly manner, one or two at a time
 - For example: "Great! Could you share your booking reference number with me?" followed by "Perfect! And what's your flight number?"
 - If guest provides multiple details at once, acknowledge and note what you still need
 - NEVER list all requirements at once like a checklist - make it feel like a helpful conversation
 
 REQUIRED INFORMATION TO COLLECT:
-- Booking reference number (CRITICAL - must be collected FIRST and validated)
+- Booking reference number (CRITICAL - must be collected FIRST and validated via verify_booking_reference)
 - Guest name
 - Email address
 - Contact number
@@ -116,7 +119,7 @@ AFTER SUCCESSFUL BOOKING:
 - Thank them and ask if there's anything else you can help with
 
 ERROR HANDLING:
-- If booking reference is invalid: "I'm unable to find that booking reference in our system. Could you please double-check the reference number from your reservation confirmation?"
+- If verify_booking_reference returns exists=false: "I'm unable to find that booking reference in our system. Could you please double-check the reference number from your reservation confirmation?"
 - If a transfer request already exists for that booking reference (tool returns alreadyExists=true): confirm we already have their request on file and share the current status; if they need changes, ask them to contact the front desk.
 - If database error occurs: "I apologize, but I'm having trouble completing the booking right now. Please contact our front desk at +1 XXX-YYY-ZZZZ and they'll arrange your transfer immediately."
 - Always remain helpful and provide alternative solutions
@@ -143,6 +146,23 @@ FALLBACK INSTRUCTIONS:
         max_tokens: 500,
         temperature: 0.2,
         tools: [
+          {
+            type: 'function',
+            function: {
+              name: 'verify_booking_reference',
+              description: "Verifies whether a booking reference number exists in the Reservations table. Use this immediately after the guest provides their booking reference number, before collecting other airport transfer details.",
+              parameters: {
+                type: 'object',
+                properties: {
+                  bookingReferenceNumber: {
+                    type: 'string',
+                    description: 'Booking reference number for the reservation'
+                  }
+                },
+                required: ['bookingReferenceNumber']
+              }
+            }
+          },
           {
             type: 'function',
             function: {
@@ -199,8 +219,77 @@ FALLBACK INSTRUCTIONS:
     // Check if the AI wants to use a tool
     if (data.choices[0].message.tool_calls) {
       const toolCall = data.choices[0].message.tool_calls[0];
-      
-      if (toolCall.function.name === 'book_airport_transfer') {
+
+      if (toolCall.function.name === 'verify_booking_reference') {
+        const args = JSON.parse(toolCall.function.arguments);
+
+        const bookingRef = String(args.bookingReferenceNumber ?? '').trim();
+        const bookingRefNoSpaces = bookingRef.replace(/\s+/g, '');
+
+        console.log('Verifying booking reference:', bookingRef);
+        console.log('Booking reference raw value:', args.bookingReferenceNumber);
+        console.log('Booking reference type:', typeof args.bookingReferenceNumber);
+
+        const lookupReservation = async (ref: string) => {
+          return await supabase
+            .from('Reservations')
+            .select('id')
+            .eq('Booking Reference Number', ref)
+            .limit(1)
+            .maybeSingle();
+        };
+
+        let { data: reservation, error: reservationError } = await lookupReservation(bookingRef);
+
+        // Best-effort retry if the stored reference contains whitespace differences
+        if (!reservation && !reservationError && bookingRefNoSpaces && bookingRefNoSpaces !== bookingRef) {
+          const retry = await lookupReservation(bookingRefNoSpaces);
+          reservation = retry.data;
+          reservationError = retry.error;
+        }
+
+        console.log('Verify reservation lookup result:', reservation);
+        console.log('Verify reservation lookup error:', reservationError);
+
+        const toolContent = reservationError
+          ? {
+              success: false,
+              error: 'Unable to verify booking reference. Please try again later.'
+            }
+          : {
+              success: true,
+              exists: Boolean(reservation),
+              bookingReference: bookingRef
+            };
+
+        const verifyResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${lovableApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'google/gemini-2.5-flash',
+            messages: [
+              { role: 'system', content: resortContext },
+              ...messages,
+              data.choices[0].message,
+              {
+                role: 'tool',
+                tool_call_id: toolCall.id,
+                content: JSON.stringify(toolContent)
+              }
+            ],
+            max_tokens: 500,
+            temperature: 0.2,
+          }),
+        });
+
+        const verifyData = await verifyResponse.json();
+        return new Response(JSON.stringify({ response: verifyData.choices[0].message.content }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      } else if (toolCall.function.name === 'book_airport_transfer') {
         console.log('Processing airport transfer booking...');
         const args = JSON.parse(toolCall.function.arguments);
         
@@ -212,8 +301,9 @@ FALLBACK INSTRUCTIONS:
         
         const { data: reservation, error: reservationError } = await supabase
           .from('Reservations')
-          .select('*')
+          .select('id')
           .eq('Booking Reference Number', bookingRef)
+          .limit(1)
           .maybeSingle();
         
         console.log('Reservation lookup result:', reservation);
