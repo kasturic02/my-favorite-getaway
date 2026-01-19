@@ -299,6 +299,65 @@ FALLBACK INSTRUCTIONS:
         console.log('Processing airport transfer booking...');
         const args = JSON.parse(toolCall.function.arguments);
         
+        // Server-side validation: Check ALL mandatory fields are present and valid
+        const missingFields: string[] = [];
+        
+        if (!args.guestName || String(args.guestName).trim() === '' || String(args.guestName).toLowerCase() === 'not provided') {
+          missingFields.push('guest name');
+        }
+        if (!args.guestEmail || String(args.guestEmail).trim() === '' || String(args.guestEmail).toLowerCase() === 'not provided') {
+          missingFields.push('email address');
+        }
+        if (!args.contactNumber || args.contactNumber === 0) {
+          missingFields.push('contact number');
+        }
+        if (!args.numberOfGuests || args.numberOfGuests === 0) {
+          missingFields.push('number of guests');
+        }
+        if (!args.flightNumber || String(args.flightNumber).trim() === '' || String(args.flightNumber).toLowerCase() === 'not provided') {
+          missingFields.push('flight number');
+        }
+        if (!args.bookingReferenceNumber || String(args.bookingReferenceNumber).trim() === '') {
+          missingFields.push('booking reference number');
+        }
+        
+        // If any mandatory fields are missing, reject the tool call and ask AI to collect them
+        if (missingFields.length > 0) {
+          console.log('Missing mandatory fields:', missingFields);
+          
+          const missingFieldsResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${lovableApiKey}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model: 'google/gemini-2.5-flash',
+              messages: [
+                { role: 'system', content: resortContext },
+                ...messages,
+                data.choices[0].message,
+                {
+                  role: 'tool',
+                  tool_call_id: toolCall.id,
+                  content: JSON.stringify({
+                    success: false,
+                    error: `Cannot complete booking. The following required information is still missing: ${missingFields.join(', ')}. Please ask the guest for these details before proceeding.`,
+                    missingFields: missingFields
+                  })
+                }
+              ],
+              max_tokens: 500,
+              temperature: 0.2,
+            }),
+          });
+          
+          const missingFieldsData = await missingFieldsResponse.json();
+          return new Response(JSON.stringify({ response: missingFieldsData.choices[0].message.content }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        
         // Validate booking reference number against Reservations table
         const bookingRef = String(args.bookingReferenceNumber ?? '').trim();
         console.log('Looking for booking reference:', bookingRef);
