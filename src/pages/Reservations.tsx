@@ -48,17 +48,17 @@ const Reservations = () => {
     }
 
     try {
-      const { error } = await (supabase as any)
-        .from('Reservations')
+      const { error } = await supabase
+        .from('reservations')
         .insert({
-          'Full Name': formData.name,
-          'Email Address': formData.email,
-          'Contact Number': parseFloat(formData.contact),
-          'Number of Guests': parseFloat(formData.guests),
-          'Room Type': formData.roomType,
-          'check in date': checkIn.toISOString().split('T')[0],
-          'check out date': checkOut.toISOString().split('T')[0],
-          'Special Requests from Customer': formData.dreamGetaway
+          full_name: formData.name,
+          email: formData.email,
+          contact_number: formData.contact,
+          number_of_guests: parseInt(formData.guests, 10),
+          room_type: formData.roomType,
+          check_in_date: checkIn.toISOString().split('T')[0],
+          check_out_date: checkOut.toISOString().split('T')[0],
+          special_requests: formData.dreamGetaway || null,
         });
 
       if (error) {
