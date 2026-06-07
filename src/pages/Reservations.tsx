@@ -48,7 +48,7 @@ const Reservations = () => {
     }
 
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('Reservations')
         .insert({
           'Full Name': formData.name,

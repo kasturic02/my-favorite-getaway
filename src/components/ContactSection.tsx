@@ -39,8 +39,8 @@ const ContactSection = () => {
       setIsSubmitting(true);
 
       // Insert into Customer Requests table
-      const { error } = await supabase
-        .from("Customer Requests" as any)
+      const { error } = await (supabase as any)
+        .from("Customer Requests")
         .insert({
           "First Name": validatedData.firstName,
           "Last Name": validatedData.lastName,
@@ -48,7 +48,7 @@ const ContactSection = () => {
           "Phone": parseInt(validatedData.phone.replace(/\D/g, "")),
           "Message / Request": validatedData.message,
           "Request Status": "New"
-        } as any);
+        });
 
       if (error) throw error;
 
